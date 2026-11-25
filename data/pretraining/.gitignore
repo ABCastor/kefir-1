@@ -1,0 +1,5 @@
+__pycache__/
+.venv/
+corpus-13b-v2/
+assets/lid.176.bin
+assets/lid.176.bin.part

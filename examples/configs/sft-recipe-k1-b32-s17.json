@@ -1,0 +1,23 @@
+{
+  "run_id": "k1-b32-s17-15k",
+  "parent": {"path": "inputs/trainer_state.pkl", "sha256": "02d307d5939825c555dfc0c34ba57f0d9300d4df55cd9b9f07d139d5700fdb73"},
+  "segments": [
+    {"path": "inputs/train-tokens.jsonl", "sha256": "71faeeebf0a6f71529a2c13d9383a135507dbe6b3599212dc424517a05aee318",
+     "order": {"path": "inputs/order-s17.json", "sha256": "unknown"}},
+    {"path": "inputs/continuation-tokens.jsonl", "sha256": "unknown",
+     "order": {"path": "inputs/continuation-order-s17.json", "sha256": "unknown"}}
+  ],
+  "validation": {"path": "inputs/validation-tokens.jsonl", "sha256": "93bf75fb79401cddecef1eb02f50020b0f5c7a3bf11f22a04bd1f2291efa67d7"},
+  "global_batch_size": 32,
+  "seed": 17,
+  "precision": "fp16",
+  "initial_loss_scale": 256,
+  "optimizer": {
+    "optimizer": "hybrid_muon_adamw", "learning_rate": 3e-05, "weight_decay": 0.1,
+    "beta1": 0.9, "beta2": 0.95, "adam_epsilon": 1e-08, "muon_momentum": 0.95,
+    "muon_lr_multiplier": 1.0, "muon_update_rms": 0.18, "muon_weight_decay": 0.1,
+    "max_grad_norm": 1.0, "max_overflow_retries": 3
+  },
+  "schedule": {"kind": "constant"},
+  "observe_at_chats": [4000, 6000, 8000, 10000, 11000, 12000, 13000, 14000]
+}

@@ -1,0 +1,227 @@
+{
+  "tokenizer_sha256": "068e20ef8a16b1bff2a2a1d161e5a6f1cfd0935befa7c0ae734c9ec376d373bb",
+  "vocab_size": 8000,
+  "supermerges": 800,
+  "supermerge_count_min": 7058,
+  "parity": {
+    "docs": 5000,
+    "identical_docs": 2612,
+    "identical_pct": 52.24,
+    "hf_tokens": 3396165,
+    "ref_tokens": 3392644,
+    "bytes_per_token_hf": 4.351,
+    "bytes_per_token_ref": 4.3555,
+    "roundtrip_failures_hf": 0,
+    "seconds_hf": 2.9,
+    "seconds_ref": 9.8
+  },
+  "buckets": {
+    "spatial_reasoning": {
+      "documents": 977,
+      "utf8_bytes": 2878979,
+      "gpt2_tokens": 620871,
+      "new_tokens": 660776,
+      "new_superword_tokens": 57048,
+      "current_tokens": 662447,
+      "new_bytes_per_token": 4.356966657384651,
+      "current_bytes_per_token": 4.345976357353871,
+      "gpt2_bytes_per_token": 4.637000278640813
+    },
+    "general_prose": {
+      "documents": 986,
+      "utf8_bytes": 1734980,
+      "gpt2_tokens": 363154,
+      "new_tokens": 403112,
+      "new_superword_tokens": 29919,
+      "current_tokens": 402573,
+      "new_bytes_per_token": 4.303965151124253,
+      "current_bytes_per_token": 4.309727676719501,
+      "gpt2_bytes_per_token": 4.777532396724255
+    },
+    "society_economics": {
+      "documents": 983,
+      "utf8_bytes": 3434860,
+      "gpt2_tokens": 671674,
+      "new_tokens": 764456,
+      "new_superword_tokens": 50548,
+      "current_tokens": 763870,
+      "new_bytes_per_token": 4.49320824220099,
+      "current_bytes_per_token": 4.496655190019244,
+      "gpt2_bytes_per_token": 5.113879649949231
+    },
+    "verbal_reasoning": {
+      "documents": 979,
+      "utf8_bytes": 3329293,
+      "gpt2_tokens": 732830,
+      "new_tokens": 769846,
+      "new_superword_tokens": 68012,
+      "current_tokens": 777892,
+      "new_bytes_per_token": 4.324622067270597,
+      "current_bytes_per_token": 4.279891038858865,
+      "gpt2_bytes_per_token": 4.543063193373634
+    },
+    "biology_health": {
+      "documents": 989,
+      "utf8_bytes": 3484379,
+      "gpt2_tokens": 723470,
+      "new_tokens": 795077,
+      "new_superword_tokens": 58952,
+      "current_tokens": 796969,
+      "new_bytes_per_token": 4.382442203711087,
+      "current_bytes_per_token": 4.3720383101475715,
+      "gpt2_bytes_per_token": 4.816203850885317
+    },
+    "physical_world": {
+      "documents": 977,
+      "utf8_bytes": 2695936,
+      "gpt2_tokens": 574455,
+      "new_tokens": 623444,
+      "new_superword_tokens": 48545,
+      "current_tokens": 619057,
+      "new_bytes_per_token": 4.324263285876518,
+      "current_bytes_per_token": 4.35490754486259,
+      "gpt2_bytes_per_token": 4.6930325264816215
+    },
+    "conversation_emotions": {
+      "documents": 990,
+      "utf8_bytes": 3044450,
+      "gpt2_tokens": 647119,
+      "new_tokens": 684015,
+      "new_superword_tokens": 57349,
+      "current_tokens": 695841,
+      "new_bytes_per_token": 4.450852685979108,
+      "current_bytes_per_token": 4.375209279131296,
+      "gpt2_bytes_per_token": 4.704621561103909
+    },
+    "history_culture": {
+      "documents": 986,
+      "utf8_bytes": 3044606,
+      "gpt2_tokens": 632513,
+      "new_tokens": 704079,
+      "new_superword_tokens": 54617,
+      "current_tokens": 712093,
+      "new_bytes_per_token": 4.324239183387092,
+      "current_bytes_per_token": 4.275573555701292,
+      "gpt2_bytes_per_token": 4.813507390361937
+    },
+    "geography": {
+      "documents": 988,
+      "utf8_bytes": 3618444,
+      "gpt2_tokens": 734323,
+      "new_tokens": 825546,
+      "new_superword_tokens": 57686,
+      "current_tokens": 825343,
+      "new_bytes_per_token": 4.383091917349245,
+      "current_bytes_per_token": 4.384169975392049,
+      "gpt2_bytes_per_token": 4.927591809054054
+    },
+    "arts_literature": {
+      "documents": 990,
+      "utf8_bytes": 2598842,
+      "gpt2_tokens": 571367,
+      "new_tokens": 622807,
+      "new_superword_tokens": 48514,
+      "current_tokens": 628440,
+      "new_bytes_per_token": 4.172788680923625,
+      "current_bytes_per_token": 4.135386035261918,
+      "gpt2_bytes_per_token": 4.548463596952572
+    },
+    "practical_life": {
+      "documents": 987,
+      "utf8_bytes": 2948591,
+      "gpt2_tokens": 624840,
+      "new_tokens": 657814,
+      "new_superword_tokens": 55980,
+      "current_tokens": 664592,
+      "new_bytes_per_token": 4.48240840115899,
+      "current_bytes_per_token": 4.4366934901413195,
+      "gpt2_bytes_per_token": 4.718953652134947
+    },
+    "language_grammar": {
+      "documents": 839,
+      "utf8_bytes": 2671214,
+      "gpt2_tokens": 553210,
+      "new_tokens": 604619,
+      "new_superword_tokens": 47326,
+      "current_tokens": 606448,
+      "new_bytes_per_token": 4.418012004253918,
+      "current_bytes_per_token": 4.40468762367095,
+      "gpt2_bytes_per_token": 4.828571428571428
+    }
+  },
+  "illustrative_probes": {
+    "conversation": [
+      {
+        "text": "I don't know what you mean, but I would like to understand.",
+        "new_tokens": 11,
+        "current_tokens": 12,
+        "gpt2_tokens": 15
+      },
+      {
+        "text": "Could you tell me how your day went?",
+        "new_tokens": 10,
+        "current_tokens": 10,
+        "gpt2_tokens": 9
+      }
+    ],
+    "verbal_reasoning": [
+      {
+        "text": "If a ball is smaller than a hole in a bag, it can fall through the hole.",
+        "new_tokens": 15,
+        "current_tokens": 15,
+        "gpt2_tokens": 19
+      },
+      {
+        "text": "Lyon is in France. The capital of France is Paris.",
+        "new_tokens": 17,
+        "current_tokens": 17,
+        "gpt2_tokens": 13
+      }
+    ],
+    "technical_prose": [
+      {
+        "text": "At sea level, water boils at 100 degrees Celsius.",
+        "new_tokens": 15,
+        "current_tokens": 14,
+        "gpt2_tokens": 11
+      },
+      {
+        "text": "Gravity pulls objects towards the ground.",
+        "new_tokens": 10,
+        "current_tokens": 10,
+        "gpt2_tokens": 8
+      }
+    ],
+    "latex": [
+      {
+        "text": "\\frac{x^2 + y^2}{\\sqrt{z}} = \\sum_{i=1}^{n} a_i",
+        "new_tokens": 41,
+        "current_tokens": 39,
+        "gpt2_tokens": 31
+      },
+      {
+        "text": "\\begin{equation}\\nabla \\cdot E = \\rho / \\epsilon_0\\end{equation}",
+        "new_tokens": 40,
+        "current_tokens": 36,
+        "gpt2_tokens": 30
+      }
+    ],
+    "python": [
+      {
+        "text": "def add(a, b):\n    return a + b\n",
+        "new_tokens": 17,
+        "current_tokens": 16,
+        "gpt2_tokens": 16
+      },
+      {
+        "text": "import numpy as np\nx = np.array([1, 2, 3])\nprint(x.mean())",
+        "new_tokens": 37,
+        "current_tokens": 36,
+        "gpt2_tokens": 25
+      }
+    ]
+  },
+  "training_elapsed_seconds_this_invocation": 914.3727452754974,
+  "quality_improvement_measured": false,
+  "scope": "candidate for next model; never overwrite currenttokenizer"
+}

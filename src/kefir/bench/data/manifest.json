@@ -1,0 +1,39 @@
+{
+  "schema": "kefir-bench/1",
+  "status": "instance-heldout diagnostic; template mechanisms partly shared",
+  "files": {
+    "dev.jsonl": "46250ad6fbb0f832848ded581b654598d2cd73d2fad9af4192b2b946ba81b79f",
+    "test.jsonl": "1627b7aabe3627f5eae8a79b72ebb803ef9b603c0268d6c6be433b29f5a7c117",
+    "reserve.jsonl": "de3c422e7640b4e226e76ddb7789ec5f8c0d0067e511f9fbb5d2de6695692518"
+  },
+  "validation": {
+    "cases": 1022,
+    "by_split_category": {
+      "dev/context": 48,
+      "dev/grammar": 64,
+      "dev/instructions": 32,
+      "dev/knowledge": 62,
+      "dev/reasoning": 32,
+      "dev/stopping": 16,
+      "reserve/context": 48,
+      "reserve/grammar": 64,
+      "reserve/instructions": 32,
+      "reserve/knowledge": 64,
+      "reserve/reasoning": 32,
+      "reserve/stopping": 16,
+      "test/context": 96,
+      "test/grammar": 128,
+      "test/instructions": 64,
+      "test/knowledge": 128,
+      "test/reasoning": 64,
+      "test/stopping": 32
+    },
+    "context_pairs": 96
+  },
+  "source_manifest_sha256": "2890c65e1f40066bcb133fc610d30ac91872543669c0848acf8d7cf3697e3ae6",
+  "authored_manifest_sha256": "3151afb7cf7184147ce9763fd112ad17270136a0ecc440bc07912e9c96ea187b",
+  "pretraining_overlap": "not checked; public benchmark exposure unknown",
+  "sft_overlap": "not checked; run explicit overlap audit before recipe claims",
+  "release_thresholds": null,
+  "test_policy": "Confirmation and reserve are packaged; do not use for recipe tuning."
+}

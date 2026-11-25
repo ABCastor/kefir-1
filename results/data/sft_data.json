@@ -1,0 +1,35 @@
+{
+  "context_length": 2048,
+  "dev_benchmark_cases": 254,
+  "gpus": "2x NVIDIA T4, FP16 mixed precision",
+  "loss": "assistant-token mean NLL including end-of-turn token; system and user tokens masked",
+  "microbatch_per_gpu": 2,
+  "min_lr_decay_arms": 3e-06,
+  "open80_questions": 80,
+  "optimizer": "hybrid Muon/AdamW (inherited from pretraining), fresh state at SFT start, gradient clipping 1.0",
+  "parent_checkpoint_step": 310000,
+  "peak_lr": 3e-05,
+  "raw_retention_cases": 62,
+  "strict_pool_candidates_labeled": 100000,
+  "strict_pool_independent": 27854,
+  "strict_pool_passes": 28058,
+  "train_continuation_5k": {
+    "assistant_targets": 3456531,
+    "chats": 5000,
+    "rendered_tokens": 4183210
+  },
+  "train_first_10k": {
+    "assistant_targets": 7036586,
+    "chats": 10000,
+    "rendered_tokens": 8498284
+  },
+  "train_total_15k": {
+    "assistant_targets": 10493117,
+    "chats": 15000
+  },
+  "validation": {
+    "assistant_targets": 364453,
+    "chats": 512,
+    "rendered_tokens": 439377
+  }
+}

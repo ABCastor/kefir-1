@@ -1,0 +1,26 @@
+{
+  "run_id": "sft-smoke",
+  "parent": {
+    "path": "../../weights/kefir-1-base/model.safetensors",
+    "sha256": "11ca59f45f8ebcfd019ed5a027198d6adb549502e3d118a031f4bec8931888ac"
+  },
+  "segments": [
+    {
+      "path": "../../runs/sft-smoke/train-tokens.jsonl",
+      "sha256": "70d9af65163c6f974399b7e98a846014fc869cbd068a26177ef2830c8b3983ac"
+    }
+  ],
+  "validation": {
+    "path": "../../runs/sft-smoke/validation-tokens.jsonl",
+    "sha256": "012c1c32e17939860afdf788cdc7d119e3bf13404bc630be6da312ec67683be1"
+  },
+  "global_batch_size": 8,
+  "seed": 17,
+  "optimizer": {
+    "optimizer": "hybrid_muon_adamw",
+    "learning_rate": 3e-05
+  },
+  "schedule": {
+    "kind": "constant"
+  }
+}

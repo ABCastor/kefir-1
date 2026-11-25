@@ -1,0 +1,48 @@
+{
+  "version": "english-prose-v1",
+  "filter_sha256": "7efe115c137fa864ebc87e2619d25d520d1019b7b7a36f857492c9ea45d68d3f",
+  "language_model_sha256": "7e69ec5451bc261cc7844e49e4792a85d7f09c06789ec800fc4a44aec362764e",
+  "source_manifest": {
+    "repo": "private qualification dataset repository (not published)",
+    "run": "qualification dataset run 001",
+    "target_bytes": 10000000000,
+    "effective_bytes": 10000004822,
+    "files": 16,
+    "roundtrip_checked": 15863,
+    "roundtrip_failures": 0,
+    "seconds": 334.9,
+    "shards": [
+      {
+        "shard": "train-000000.bin",
+        "documents": 685087,
+        "sha256_first_mb": "fc6afd2de4cd2e4e21d9e2aa1907ba9539c47e5554687af09afd0f7a147dd00a"
+      },
+      {
+        "shard": "train-000003.bin",
+        "documents": 745131,
+        "sha256_first_mb": "c9e1d3351ea85b832d9e527d2163bb2f9821d584ed7ae38e996093142a16a31e"
+      },
+      {
+        "shard": "train-000006.bin",
+        "documents": 749680,
+        "sha256_first_mb": "fc916d1d28fb88cf8a407ca0f0f3d58adbdd25412b8cb74588fce871c739e240"
+      },
+      {
+        "shard": "train-000009.bin",
+        "documents": 739789,
+        "sha256_first_mb": "26ba0b8517bf7078d8cbff82875c6c72305c5907af29c67e1a90d0fa51336d15"
+      },
+      {
+        "shard": "train-000012.bin",
+        "documents": 252496,
+        "sha256_first_mb": "e5edeb94ee72e514bf68acb0bd6d10973c2a168d8e995077dd1dc12a656340bb"
+      }
+    ]
+  },
+  "limit": 0,
+  "validation_max_docs_per_primary_bucket": 1000,
+  "stage2_max_utf8_bytes": 1000000000,
+  "seed_kind": "10GB reconstruction from qualification10B; NOT final100B",
+  "refinement_sha256": "f89b952031b5ef832e33b12061461d589033ee5e103a3a65186305b48863002d",
+  "refinement_version": "english-prose-v2"
+}

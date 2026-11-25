@@ -1,0 +1,9 @@
+# Python 3.12 tokenizer environment. Keep separate from the trainer environment.
+# boundlessbpe is not on PyPI: it is built from source with maturin, which needs a Rust toolchain.
+boundlessbpe @ git+https://github.com/kensho-technologies/fastboundlessbpe@c2dce3131093aa4c7fc595c91b15a861dea3094c
+heapdict==1.0.1
+regex==2026.9.10
+tokenizers==0.23.2
+# prepare_seed.py only (fastText language identification); numpy pinned below 2 for fasttext-wheel
+fasttext-wheel==0.9.2
+numpy==1.26.4

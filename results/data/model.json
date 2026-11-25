@@ -1,0 +1,30 @@
+{
+  "architecture": "gdn2_hybrid",
+  "attention_heads": 4,
+  "context_length": 2048,
+  "d_model": 256,
+  "dispatch": "dropless_padded_batched_gemm",
+  "expert_d_ff": 352,
+  "expert_type": "swiglu",
+  "gdn_chunk_size": 32,
+  "head_dim": 64,
+  "layer_pattern": [
+    "gdn",
+    "gdn",
+    "gdn",
+    "mha"
+  ],
+  "load_balancing": "quantile",
+  "n_layers": 8,
+  "num_experts": 64,
+  "parameters_active_derivation": "total - all expert weights + top_k expert weights per MoE layer; expert = 3*d_model*expert_d_ff",
+  "parameters_active_per_token": 9987992,
+  "parameters_total": 144074648,
+  "router_scoring": "sqrt_softplus",
+  "tokenizer": "SuperBPE 8000 v2",
+  "tokenizer_sha256": "068e20ef8a16b1bff2a2a1d161e5a6f1cfd0935befa7c0ae734c9ec376d373bb",
+  "top_k": 2,
+  "vocab_padded": 8192,
+  "vocab_semantic": 8000,
+  "weights_sha256_step_310000": "4dba9a25e925d55a23767ced2a67ab293225ce8bb5fe701645c910b27f88f71d"
+}

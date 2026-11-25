@@ -1,0 +1,53 @@
+# Python and build outputs
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+*.egg-info/
+build/
+dist/
+
+# Local credentials
+.env
+.env.*
+*.env
+!examples/configs/env.example
+.secrets/
+.aws/
+.kaggle/
+.netrc
+*.pem
+*.p12
+*.pfx
+*.key
+id_rsa
+id_ed25519
+client_secret_*.json
+credentials*.json
+token*.json
+service_account*.json
+
+# Training and evaluation outputs
+weights/
+wandb/
+artifacts/
+runs/
+checkpoints/
+chat_models/
+src/dataset/output/
+src/dataset/**/*.bin
+src/dataset/**/*.tmp
+data/pretraining/assets/lid.176.bin
+data/pretraining/corpus-*/
+data/pretraining/tiktoken-cache/
+data/sft/sources/
+data/sft/work/
+*.log
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Not distributed: obtain separately (see data/pretraining/README.md)
+data/pretraining/assets/students.pkl

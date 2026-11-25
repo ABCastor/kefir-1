@@ -1,0 +1,4 @@
+{"conversation_id": "smoke-validation-01", "messages": [{"role": "user", "content": "What season comes after winter?"}, {"role": "assistant", "content": "Spring comes after winter."}]}
+{"conversation_id": "smoke-validation-02", "messages": [{"role": "system", "content": "You are a helpful assistant. Answer in one sentence."}, {"role": "user", "content": "Tell me one thing that is cold."}, {"role": "assistant", "content": "Snow is cold."}]}
+{"conversation_id": "smoke-validation-03", "messages": [{"role": "user", "content": "How many legs does a spider have?"}, {"role": "assistant", "content": "A spider has eight legs."}]}
+{"conversation_id": "smoke-validation-04", "messages": [{"role": "user", "content": "What do you call a baby cat?"}, {"role": "assistant", "content": "A baby cat is called a kitten."}]}

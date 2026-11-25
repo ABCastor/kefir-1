@@ -1,0 +1,61 @@
+[project]
+name = "kefir"
+version = "0.1.0"
+description = "Kefir 1: a small mixture-of-experts language model, its pretraining, supervised fine-tuning, evaluation and chat."
+readme = "README.md"
+license = "MIT AND CC-BY-NC-4.0"
+license-files = ["LICENSE", "NOTICE.md"]
+authors = [
+    { name = "Edoardo Avenia" },
+    { name = "Rocco Angelella" },
+]
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.1,<3",
+    "torch==2.10.0",
+    "tokenizers==0.23.2",
+    "safetensors>=0.5,<1",
+]
+
+[project.urls]
+Repository = "https://github.com/ABCastor/kefir-1"
+Issues = "https://github.com/ABCastor/kefir-1/issues"
+
+[project.optional-dependencies]
+fla = ["fla-core==0.5.2"]
+hf = ["huggingface-hub>=1.5,<2"]
+wandb = ["wandb==0.26.1"]
+source-data = ["tiktoken==0.14.0"]
+bench = ["pyarrow==26.0.1"]
+
+[dependency-groups]
+test = [
+    "huggingface-hub>=1.5,<2",
+    "pyarrow==26.0.1",
+    "pytest==9.1.1",
+    "tiktoken==0.14.0",
+    "wandb==0.26.1",
+]
+
+[project.scripts]
+kefir = "kefir.cli:main"
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["kefir*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"kefir.assets" = ["superbpe_8000_v2.json", "thematic_panels_v1/*.json", "thematic_panels_v1/*.npz"]
+"kefir.bench" = ["data/*.json"]
+
+[tool.uv]
+default-groups = ["test"]

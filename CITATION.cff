@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use Kefir 1, its code or its results, please cite it as below. The licence below (MIT) covers the software; the Kefir 1 weights, the pretraining corpus and the bundled thematic text panels are licensed CC BY-NC 4.0, and the fine-tuning conversations keep their source terms (see NOTICE.md)."
+title: "Kefir 1: a small mixture-of-experts language model trained end to end"
+type: software
+authors:
+  - family-names: Avenia
+    given-names: Edoardo
+  - family-names: Angelella
+    given-names: Rocco
+year: 2026
+license: MIT
+repository-code: "https://github.com/ABCastor/kefir-1"

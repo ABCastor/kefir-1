@@ -1,0 +1,420 @@
+"""Arguments and safety gates for the bounded trainer CLI."""
+
+from __future__ import annotations
+
+import argparse
+import math
+import re
+from pathlib import Path
+
+
+def _steps(value: str) -> tuple[int, ...]:
+    try:
+        result = tuple(sorted({int(item) for item in value.split(",")}))
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("expected comma-separated update numbers") from error
+    if not result or result[0] < 0:
+        raise argparse.ArgumentTypeError("update numbers must be non-negative")
+    return result
+
+
+def parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        description="Bounded smoke training on immutable schema-v2 shards."
+    )
+    p.add_argument("--dataset-dir", type=Path, required=True)
+    p.add_argument("--local-incremental-frontier", action="store_true",
+                   help="Read a complete incremental frontier and its staged shards locally.")
+    p.add_argument(
+        "--dataset-manifest",
+        type=Path,
+        help="Optional schema-v2 manifest or restored checkpoint drive_manifest.json.",
+    )
+    p.add_argument(
+        "--dataset-shard-bucket",
+        help="Hugging Face Storage Bucket containing immutable dataset shards.",
+    )
+    p.add_argument(
+        "--dataset-shard-run-id",
+        help="Dataset run ID used under run/<id>/ in the immutable shard bucket.",
+    )
+    p.add_argument(
+        "--dataset-shard-token-env",
+        default="HF_TOKEN",
+        help="Environment variable containing the Hugging Face token for dataset shard reads.",
+    )
+    p.add_argument(
+        "--dataset-shard-prefetch",
+        type=int,
+        default=1,
+        help="Number of future train shards prefetched asynchronously; default keeps current + next.",
+    )
+    p.add_argument(
+        "--dataset-shard-wait-timeout-seconds", type=float, default=0.0,
+        help="Fail after this many seconds without incremental READY progress; zero waits forever.",
+    )
+    p.add_argument("--checkpoint-dir", type=Path, required=True)
+    p.add_argument("--steps", type=int, required=True)
+    p.add_argument("--target-tokens", type=int, default=None,
+                   help="stop after the first completed block reaching this absolute token count")
+    p.add_argument("--extend-budget", action="store_true", help="Extend a completed run budget without changing its recipe")
+    p.add_argument("--scientific-run-contract", help="Public API run identity embedded in each checkpoint")
+    p.add_argument("--legacy-checkpoint-sha256")
+    p.add_argument("--legacy-dataset-configuration-hash")
+    p.add_argument("--resume")
+    p.add_argument(
+        "--fork-checkpoint", type=Path,
+        help="Absolute path to a complete checkpoint from a different run; starts a new schedule lineage.",
+    )
+    p.add_argument("--sequences-per-block", type=int)
+    p.add_argument("--model-size", choices=("accepted",), default="accepted")
+    p.add_argument(
+        "--architecture",
+        choices=("gdn2_hybrid", "swa_hybrid", "all_mha"),
+        default="gdn2_hybrid",
+    )
+    p.add_argument(
+        "--gdn-chunk-size",
+        type=int,
+        help=(
+            "GDN-2 training chunk. Trusted T4 FP16 runs default to the "
+            "qualified size 32; other GDN-2 modes retain the model default 64."
+        ),
+    )
+    p.add_argument(
+        "--allow-unqualified-gdn2-chunk",
+        action="store_true",
+        help=(
+            "Permit a non-32 GDN-2 chunk under FP16 for diagnostics only. "
+            "Chunk 64 is not qualified for trusted T4 FP16 training."
+        ),
+    )
+    p.add_argument("--initialization", choices=("normal", "xavier"), default="normal")
+    p.add_argument("--device", default="cuda")
+    p.add_argument("--precision", choices=("fp32", "fp16", "bf16"), default="fp16")
+    p.add_argument(
+        "--optimizer",
+        choices=("hybrid_muon_adamw", "adamw"),
+        default="hybrid_muon_adamw",
+    )
+    p.add_argument("--microbatch-size", type=int, default=1)
+    p.add_argument("--validation-microbatch-size", type=int, default=1)
+    p.add_argument("--async-checkpoint-upload", action="store_true")
+    p.add_argument("--run-source-commit", help="Immutable source anchor of a resumed run; executor uses --source-commit.")
+    p.add_argument("--learning-rate", type=float, default=3e-4)
+    p.add_argument("--weight-decay", type=float, default=0.1)
+    p.add_argument("--muon-momentum", type=float, default=0.95)
+    p.add_argument("--muon-lr-multiplier", type=float, default=1.0)
+    p.add_argument("--muon-update-rms", type=float, default=0.18)
+    p.add_argument("--muon-weight-decay", type=float, default=0.1)
+    p.add_argument("--max-grad-norm", type=float, default=1.0)
+    p.add_argument("--schedule", choices=("constant", "wsd", "wsqd"), default="constant")
+    p.add_argument("--warmup-tokens", type=int, default=0)
+    p.add_argument("--stable-tokens", type=int, default=0)
+    p.add_argument("--decay-tokens", type=int, default=0)
+    p.add_argument("--minimum-lr-ratio", type=float, default=0.1)
+    p.add_argument(
+        "--schedule-anchor-tokens",
+        type=int,
+        default=0,
+        help="For wsqd continuation, committed-token point whose LR equals --learning-rate.",
+    )
+    p.add_argument(
+        "--cooldown-start-tokens",
+        type=int,
+        default=0,
+        help="For wsqd continuation, absolute committed-token point where terminal decay begins.",
+    )
+    p.add_argument(
+        "--settle-tokens",
+        type=int,
+        default=0,
+        help="Optional WSqD cosine settling span immediately after the continuation anchor.",
+    )
+    p.add_argument(
+        "--settle-lr-ratio",
+        type=float,
+        default=1.0,
+        help="WSqD settling target as a fraction of --learning-rate; requires --settle-tokens.",
+    )
+    p.add_argument(
+        "--base-power",
+        type=float,
+        default=0.5,
+        help="Positive WSqD power-law exponent after settling; 0.5 is inverse square root.",
+    )
+    p.add_argument("--checkpoint-every-steps", type=int, default=0)
+    p.add_argument(
+        "--keep-last-checkpoints",
+        type=int,
+        default=0,
+        help=(
+            "Retain only the newest N local step checkpoints, plus the best, the resume "
+            "source and milestones. Zero keeps every checkpoint."
+        ),
+    )
+    p.add_argument(
+        "--milestone-every-steps",
+        type=int,
+        default=0,
+        help="Local checkpoints whose update number is a multiple of M are never pruned.",
+    )
+    p.add_argument(
+        "--max-wall-seconds",
+        type=float,
+        default=0.0,
+        help=(
+            "Drain budget measured from process start. When the next update would exceed it, "
+            "save a checkpoint and exit zero. Zero disables the budget."
+        ),
+    )
+    p.add_argument("--evaluation-every-steps", type=int, default=0)
+    p.add_argument("--validation-blocks", type=int, default=0)
+    p.add_argument("--thematic-panels", default="",
+                   help=("Directory of frozen thematic validation panels scored beside every "
+                         "periodic validation. Empty disables them."))
+    p.add_argument("--thematic-microbatch", type=int, default=32,
+                   help="Windows per thematic forward; the frozen panels hold 32 windows per domain.")
+    p.add_argument("--checkpoint-at-steps", type=_steps, default=(),
+                   help="Additional absolute successful-update numbers, including zero.")
+    p.add_argument("--experiment-dir", type=Path,
+                   help="Optional local manifest, JSONL events and fixed-probe artifacts.")
+    p.add_argument("--profile-at-steps", type=_steps, default=(),
+                   help="Profile one complete update at each absolute number; separate from clean timing.")
+    p.add_argument("--probe-sequences", type=int, default=0,
+                   help="Freeze the first N validation sequences; zero disables the probe.")
+    p.add_argument("--probe-lm-logits", action="store_true",
+                   help="Also retain full FP16 LM logits; router logits and FP32 CE are sufficient by default.")
+    p.add_argument("--no-checkpoint-fsync", action="store_true",
+                   help="Only for filesystems without fsync; provider must ensure durability.")
+    p.add_argument("--no-optimizer-telemetry", action="store_true",
+                   help="Omit per-parameter update diagnostics to reduce memory use.")
+    p.add_argument("--source-commit", help="Source commit supplied by a provider image launcher.")
+    p.add_argument(
+        "--remote-publish-every-steps",
+        type=int,
+        default=0,
+        help=(
+            "Publish a verified joint checkpoint to the configured Hugging Face "
+            "remote store every N successful updates. Zero disables publication."
+        ),
+    )
+    p.add_argument(
+        "--remote-drive-manifest",
+        type=Path,
+        help=(
+            "Verified durability manifest bound into every remotely published checkpoint."
+        ),
+    )
+    p.add_argument(
+        "--remote-checkpoint-repo",
+        help=(
+            "Explicit Hugging Face repository ID."
+        ),
+    )
+    p.add_argument(
+        "--remote-checkpoint-bucket",
+        help=(
+            "Private Hugging Face Storage Bucket ID. When set, checkpoint objects use "
+            "mutable bucket storage instead of a Git-backed model repository."
+        ),
+    )
+    p.add_argument(
+        "--remote-checkpoint-revision",
+        help="Optional Hugging Face repository revision used for repository-backed checkpoint objects.",
+    )
+    p.add_argument(
+        "--remote-token-env",
+        default="HF_TOKEN",
+        help="Environment variable containing the Hugging Face access token.",
+    )
+    p.add_argument(
+        "--remote-create-repo",
+        action="store_true",
+        help="Create the configured private Hugging Face repository if missing.",
+    )
+    p.add_argument(
+        "--remote-create-bucket",
+        action="store_true",
+        help="Create the configured private Hugging Face Storage Bucket if missing.",
+    )
+    p.add_argument("--remote-keep-latest-and-best", action="store_true",
+                   help="Retain only latest and validation-best checkpoints in a Storage Bucket.")
+    p.add_argument(
+        "--remote-rolling-latest-only",
+        action="store_true",
+        help=(
+            "After each verified remote publication, retain only the latest run checkpoint. "
+            "For Storage Buckets this deletes superseded mutable objects; repository-backed "
+            "stores retain the compatibility history-squash implementation. This disables "
+            "remote best-checkpoint retention."
+        ),
+    )
+    p.add_argument(
+        "--best-model-repo",
+        help=(
+            "Dedicated private Hugging Face model repository for the strict validation-loss best "
+            "checkpoint. This transport is separate from exact-resume checkpoints."
+        ),
+    )
+    p.add_argument(
+        "--best-model-recreate",
+        action="store_true",
+        help=(
+            "Delete and recreate the marker-verified dedicated best-model repository on every "
+            "strict improvement, preventing Git/LFS history accumulation."
+        ),
+    )
+    p.add_argument(
+        "--wandb-mode",
+        choices=("disabled", "online", "offline"),
+        default="disabled",
+        help="Weights & Biases telemetry mode. Disabled keeps ordinary tests network-free.",
+    )
+    p.add_argument(
+        "--wandb-project",
+        default="Small-LLM",
+        help="Weights & Biases project name for qualification runs.",
+    )
+    p.add_argument("--wandb-entity", help="Optional W&B user or team entity.")
+    p.add_argument("--wandb-run-name", help="Optional human-readable W&B run name.")
+    p.add_argument(
+        "--wandb-run-id",
+        help="Stable W&B run ID. Reuse it with --wandb-resume when resuming training.",
+    )
+    p.add_argument(
+        "--wandb-resume",
+        choices=("never", "allow", "must", "auto"),
+        default="never",
+        help="W&B resume policy; a non-never value requires --wandb-run-id.",
+    )
+    p.add_argument(
+        "--wandb-tags",
+        nargs="*",
+        default=(),
+        help="Optional W&B tags for grouping qualification runs.",
+    )
+    p.add_argument(
+        "--wandb-dir",
+        type=Path,
+        help="Local W&B files directory; defaults under --checkpoint-dir.",
+    )
+    p.add_argument("--seed", type=int, default=17)
+    return p
+
+
+def parse_args(
+    argv: list[str] | None = None, *, argument_parser: argparse.ArgumentParser | None = None,
+) -> argparse.Namespace:
+    args = (argument_parser or parser()).parse_args(argv)
+    if args.steps <= 0:
+        raise SystemExit("--steps must be positive")
+    if args.target_tokens is not None and args.target_tokens <= 0:
+        raise SystemExit("--target-tokens must be positive")
+    if args.fork_checkpoint is not None:
+        if args.resume is not None:
+            raise SystemExit("--fork-checkpoint and --resume are mutually exclusive")
+        if not args.fork_checkpoint.is_absolute():
+            raise SystemExit("--fork-checkpoint must be an absolute path")
+    if args.validation_microbatch_size <= 0:
+        raise SystemExit("--validation-microbatch-size must be positive")
+    if args.validation_blocks < 0:
+        raise SystemExit("--validation-blocks cannot be negative")
+    if args.thematic_microbatch <= 0:
+        raise SystemExit("--thematic-microbatch must be positive")
+    if args.probe_sequences < 0:
+        raise SystemExit("--probe-sequences cannot be negative")
+    if args.keep_last_checkpoints < 0:
+        raise SystemExit("--keep-last-checkpoints cannot be negative")
+    if args.milestone_every_steps < 0:
+        raise SystemExit("--milestone-every-steps cannot be negative")
+    if not math.isfinite(args.max_wall_seconds) or args.max_wall_seconds < 0:
+        raise SystemExit("--max-wall-seconds must be finite and non-negative")
+    if (args.profile_at_steps or args.probe_sequences) and args.experiment_dir is None:
+        raise SystemExit("profiling and probes require --experiment-dir")
+    if 0 in args.profile_at_steps:
+        raise SystemExit("profile update numbers must be positive")
+    if args.probe_lm_logits and not args.probe_sequences:
+        raise SystemExit("--probe-lm-logits requires --probe-sequences")
+    if args.run_source_commit and (not args.source_commit or re.fullmatch(r"[0-9a-f]{40}", args.run_source_commit) is None):
+        raise SystemExit("--run-source-commit requires a full Git SHA and --source-commit")
+    if args.source_commit and re.fullmatch(r"[0-9a-f]{40}", args.source_commit) is None:
+        raise SystemExit("--source-commit must be a full Git SHA")
+    if args.dataset_shard_prefetch < 1:
+        raise SystemExit("--dataset-shard-prefetch must be at least one")
+    if (not math.isfinite(args.dataset_shard_wait_timeout_seconds)
+            or args.dataset_shard_wait_timeout_seconds < 0):
+        raise SystemExit("--dataset-shard-wait-timeout-seconds must be finite and non-negative")
+    if bool(args.dataset_shard_bucket) != bool(args.dataset_shard_run_id):
+        raise SystemExit(
+            "--dataset-shard-bucket and --dataset-shard-run-id must be supplied together"
+        )
+    if args.local_incremental_frontier and args.dataset_shard_bucket:
+        raise SystemExit("local incremental frontier cannot use a remote shard bucket")
+    if args.local_incremental_frontier and args.dataset_manifest is None:
+        raise SystemExit("local incremental frontier requires --dataset-manifest")
+    if args.dataset_shard_bucket and args.dataset_manifest is None:
+        raise SystemExit("rolling dataset shards require --dataset-manifest")
+    if args.remote_publish_every_steps < 0:
+        raise SystemExit("--remote-publish-every-steps cannot be negative")
+    if args.remote_publish_every_steps and args.remote_drive_manifest is None:
+        raise SystemExit(
+            "--remote-drive-manifest is required when remote publication is enabled"
+        )
+    if args.remote_checkpoint_repo and args.remote_checkpoint_bucket:
+        raise SystemExit(
+            "choose only one of --remote-checkpoint-repo or --remote-checkpoint-bucket"
+        )
+    if args.remote_create_repo and args.remote_checkpoint_bucket:
+        raise SystemExit("--remote-create-repo cannot be used with --remote-checkpoint-bucket")
+    if args.remote_create_bucket and not args.remote_checkpoint_bucket:
+        raise SystemExit("--remote-create-bucket requires --remote-checkpoint-bucket")
+    if args.remote_rolling_latest_only and args.remote_publish_every_steps == 0:
+        raise SystemExit(
+            "--remote-rolling-latest-only requires --remote-publish-every-steps"
+        )
+    if args.remote_keep_latest_and_best and (
+        not args.remote_checkpoint_bucket or not args.remote_publish_every_steps
+        or args.remote_rolling_latest_only
+    ):
+        raise SystemExit("latest-and-best retention requires bucket publication and excludes latest-only mode")
+    if args.best_model_recreate and not args.best_model_repo:
+        raise SystemExit("--best-model-recreate requires --best-model-repo")
+    if args.best_model_repo and not args.best_model_recreate:
+        raise SystemExit(
+            "--best-model-repo requires --best-model-recreate so model history cannot accumulate"
+        )
+    if args.best_model_repo and args.validation_blocks == 0:
+        raise SystemExit("--best-model-repo requires held-out validation blocks")
+    if args.wandb_mode == "disabled" and args.wandb_resume != "never":
+        raise SystemExit("--wandb-resume requires W&B telemetry to be enabled")
+    if args.wandb_mode != "disabled" and args.resume:
+        if not args.wandb_run_id:
+            raise SystemExit(
+                "--wandb-run-id is required to keep telemetry continuous when resuming"
+            )
+        if args.wandb_resume == "never":
+            args.wandb_resume = "must"
+    if args.gdn_chunk_size is not None and args.gdn_chunk_size <= 0:
+        raise SystemExit("--gdn-chunk-size must be positive")
+
+    if args.architecture == "gdn2_hybrid":
+        if args.gdn_chunk_size is None:
+            args.gdn_chunk_size = 32 if args.model_size == "accepted" or args.precision == "fp16" else 64
+        if (
+            args.precision == "fp16"
+            and args.gdn_chunk_size != 32
+            and not args.allow_unqualified_gdn2_chunk
+        ):
+            raise SystemExit(
+                "trusted GDN-2 FP16 training requires the T4-qualified chunk size 32; "
+                "use --allow-unqualified-gdn2-chunk only for a diagnostic run"
+            )
+    else:
+        if args.gdn_chunk_size is not None:
+            raise SystemExit("--gdn-chunk-size applies only to gdn2_hybrid")
+        if args.allow_unqualified_gdn2_chunk:
+            raise SystemExit(
+                "--allow-unqualified-gdn2-chunk applies only to gdn2_hybrid"
+            )
+    return args

@@ -1,0 +1,6 @@
+{
+  "output": "runs/k1-b32-s17-15k",
+  "device": "cuda",
+  "microbatch_size": 2,
+  "threads": 2
+}

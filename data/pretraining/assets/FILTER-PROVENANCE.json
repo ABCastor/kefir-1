@@ -1,0 +1,34 @@
+{
+  "why": "contract.json pins only filters_v4_adapter.py (build_raw_parallel.py hashes the module it imports, not that module's own imports). The adapter's behaviour also depends on filters_v4.py, student_gate.py and the distilled student pickle, so their hashes are recorded here. Both build machines were verified byte-identical on every file below before the build started.",
+  "built_at_utc": "2026-09-20T16:48:56.916712Z",
+  "filter_version": "english-prose-v4-scored-r2+adapter-2",
+  "pipeline": "filters_v4.classify_v4 -> fastText language (word-weighted mean P(en) >= 0.65, <=30% chunks < 0.5) -> student_gate (poor_english >= 0.80, not_prose >= 0.80, symbolic >= 0.70)",
+  "student": {
+    "teacher": "a decision model",
+    "labels": 15922,
+    "source": "teacher/rows-wave12.jsonl + teacher/out/wave1,wave2/*/results.jsonl",
+    "test_split": "doc_id[:4] as hex % 100 < 15",
+    "held_out_auc": {
+      "poor_english": 0.863,
+      "not_prose": 0.902,
+      "symbolic": 0.997,
+      "reasoning_dense": 0.921,
+      "reasoning_none": 0.94
+    }
+  },
+  "machines": {
+    "machine_a": "8 workers, modulo rule",
+    "machine_b": "12 workers, explicit --regions (RAM-bound at 12, not core-bound)"
+  },
+  "sha256": {
+    "filters_v4_adapter.py": "a6b5c828d5fc6aa7cae27dfa9f5ae273b624c31a0876df36345b8ec0d81fd368",
+    "filters_v4.py": "57bee82bb7c339fa317d3a2c058747cb6a5236769aa7c4e5d6c119e8fc3c2381",
+    "filters.py": "7efe115c137fa864ebc87e2619d25d520d1019b7b7a36f857492c9ea45d68d3f",
+    "student_gate.py": "5f79d66043b01bd69a0a6e416c857e1b422b0a637da877e02d90aa6cbf476cc3",
+    "teacher/student/students.pkl": "b8b8472278bc63a04f124b66fbefff9972a30d39ae98b13b541b772874135959",
+    "build_raw_parallel.py": "77f1b322e4a5f4f107087a629bf2288b58203df1fea37d6832e952980d94d11d",
+    "build_local.py": "dc0eae7e0252d4c826ee4d9c1712d39963974f68d70483341e177e1b4f643a38",
+    "refine_seed.py": "f89b952031b5ef832e33b12061461d589033ee5e103a3a65186305b48863002d",
+    "assets/lid.176.bin": "7e69ec5451bc261cc7844e49e4792a85d7f09c06789ec800fc4a44aec362764e"
+  }
+}

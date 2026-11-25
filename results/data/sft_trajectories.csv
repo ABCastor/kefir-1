@@ -1,0 +1,13 @@
+trajectory,schedule,global_batch,data_order_seed,status,segments,note
+flat-b32-s17,flat,32,17,complete,flat-b32-s17/0-10k;flat-b32-s17/10k-15k,constant LR 3e-5; 10k pass then exact-state continuation with 5k new chats
+flat-b64-s17,flat,64,17,complete,flat-b64-s17/0-10k;flat-b64-s17/10k-15k,constant LR 3e-5; 10k pass then exact-state continuation with 5k new chats
+flat-b64-s18,flat,64,18,complete,flat-b64-s18/0-10k,constant LR 3e-5; 10k pass only
+latedecay-b32-s17,late-decay,32,17,complete,flat-b32-s17/0-10k;latedecay-b32-s17/10k-15k,fork of flat-b32-s17 at 10k; cosine 3e-5 to 3e-6 over the 5k suffix
+latedecay-b64-s17,late-decay,64,17,complete,flat-b64-s17/0-10k;latedecay-b64-s17/10k-15k,fork of flat-b64-s17 at 10k; cosine 3e-5 to 3e-6 over the 5k suffix
+wd-b32-s17,warmup-decay,32,17,complete,warmup-b32-s17/0-512;wd-b32-s17/512-15k,"512-chat warm-up, then decay to 3e-6 at 15k"
+wsd-b32-s17,warmup-stable-decay,32,17,complete,warmup-b32-s17/0-512;wsd-b32-s17/512-15k,"512-chat warm-up, flat to the 5k-chat target count, decay to 3e-6 at 15k"
+wd-b32-s18,warmup-decay,32,18,complete,warmup-b32-s18/0-512;wd-b32-s18/512-15k,"512-chat warm-up, then decay to 3e-6 at 15k"
+wsd-b32-s18,warmup-stable-decay,32,18,complete,warmup-b32-s18/0-512;wsd-b32-s18/512-15k,"512-chat warm-up, flat to the 5k-chat target count, decay to 3e-6 at 15k"
+flat-b16-s17,flat,16,17,not_run,,planned in the batch screen; never started (queued behind other jobs)
+flat-b16-s18,flat,16,18,not_run,,planned in the batch screen; never started (queued behind other jobs)
+flat-b32-s18,flat,32,18,not_run,,planned in the batch screen; never admitted

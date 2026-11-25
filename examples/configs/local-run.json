@@ -1,0 +1,12 @@
+{
+  "run_id": "kefir-local-qualification",
+  "dataset_dir": "data/prepared-schema-v2",
+  "target_tokens": 131072,
+  "max_steps": 1,
+  "global_batch_size": 64,
+  "training": {
+    "optimizer": "hybrid_muon_adamw",
+    "learning_rate": 0.0003,
+    "schedule": "constant"
+  }
+}

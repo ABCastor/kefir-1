@@ -1,0 +1,60 @@
+{
+  "tokenizer": {
+    "path": "src/kefir/assets/superbpe_8000_v2.json",
+    "sha256": "068e20ef8a16b1bff2a2a1d161e5a6f1cfd0935befa7c0ae734c9ec376d373bb",
+    "bytes": 599182
+  },
+  "producer_models": {
+    "note": "published in the Hugging Face tokenizer repository, not bundled here",
+    "superbpe_8000_final.model": "1ad07b838fcc019ecd98f4618f6b60a5ef7b135698d5230c70c4c1a4c160fb15",
+    "super_7992.model": "1ad07b838fcc019ecd98f4618f6b60a5ef7b135698d5230c70c4c1a4c160fb15",
+    "word_final.model": "5f5cca157ffc6804870a50d536dafeba08dcb2487fbc7404d47d4876f239fb25",
+    "evaluation.json": "556c413416f890447329324d2e3a6e405c6407f2a23ffa46925ac9e9e8c943f9"
+  },
+  "library": {
+    "name": "boundlessbpe",
+    "version": "0.1.0",
+    "source": "https://github.com/kensho-technologies/fastboundlessbpe",
+    "commit": "c2dce3131093aa4c7fc595c91b15a861dea3094c",
+    "licence": "Apache-2.0",
+    "python": "3.12"
+  },
+  "seed": {
+    "source": "nvidia/Nemotron-ClimbMix",
+    "source_revision": "5eaa64b9c0c85b7f56af01d7dffdb0795816b12b",
+    "source_licence": "CC BY-NC 4.0",
+    "decoded_utf8_bytes": 10000004822,
+    "filters": [
+      "english-prose-v1",
+      "english-prose-v2"
+    ],
+    "fasttext_lid_176_sha256": "7e69ec5451bc261cc7844e49e4792a85d7f09c06789ec800fc4a44aec362764e",
+    "accepted_documents": 2231584,
+    "validation_documents": 11671,
+    "stage1": {
+      "documents": 2219913,
+      "utf8_bytes": 5848388156,
+      "sha256": "5e7e0761f0b52865437c102ea3a7038675cb478be5baf8db17076e92e922fda2"
+    },
+    "stage2": {
+      "documents": 377370,
+      "utf8_bytes": 999999814,
+      "sha256": "ee8fee3a359fbbb67f69f3e265a3e37dd9ead53623ad7072f78e20e3facc473a"
+    }
+  },
+  "original_source_sha256": {
+    "note": "historical fitting scripts; the files here are ports with a new identity, except filters.py",
+    "finish_tokenizer.py": "c514c4b58015461887239dd707c6e4d5a17d7a54bd6f9966f294da637c69e4ca",
+    "model_to_hf.py": "19bb6c630d134b99d6a7b9ff5c7969b015085df836e4a12cc68037d021b0e5eb",
+    "build_local.py": "dc0eae7e0252d4c826ee4d9c1712d39963974f68d70483341e177e1b4f643a38",
+    "refine_seed.py": "f89b952031b5ef832e33b12061461d589033ee5e103a3a65186305b48863002d",
+    "filters.py": "7efe115c137fa864ebc87e2619d25d520d1019b7b7a36f857492c9ea45d68d3f"
+  },
+  "source_sha256": {
+    "export_hf.py": "0f337e1ae37459300813d19096cc8496e938ddf5efeb1fce91e9a3224a4e4c83",
+    "filters.py": "7efe115c137fa864ebc87e2619d25d520d1019b7b7a36f857492c9ea45d68d3f",
+    "prepare_seed.py": "64b3e233e5364a7623df8bfe4272d992aa648d7dd22f6b570e317578d9989340",
+    "train_tokenizer.py": "c7a856a9e5db32cf1bb21fe74b38f2db53380a0ff6387cfda901fbc8413e7ad2",
+    "verify_tokenizer.py": "fef8d9ab7edd3fb5f0542b56c2b6dcc01b7fdfb8877db7b367bfee7681b1a3d8"
+  }
+}

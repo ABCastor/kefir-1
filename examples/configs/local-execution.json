@@ -1,0 +1,11 @@
+{
+  "run_root": "runs",
+  "device": "cuda",
+  "precision": "bf16",
+  "compile_mode": "off",
+  "microbatch_size": 4,
+  "checkpoint_every_steps": 1,
+  "evaluation_every_steps": 0,
+  "validation_blocks": 0,
+  "wandb_mode": "disabled"
+}

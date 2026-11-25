@@ -1,0 +1,70 @@
+{
+  "assets": {
+    "../../../src/kefir/assets/superbpe_8000_v2.json": "068e20ef8a16b1bff2a2a1d161e5a6f1cfd0935befa7c0ae734c9ec376d373bb",
+    "FILTER-PROVENANCE.json": "dfcfe3fa925b4030887628e59f7ccd1f29211d150e464b8a86ac63ee214d6d8e",
+    "cluster_tree.json": "71734c7dafd16f414347ac498bc521ddfcc736487707d9bc1b703164ce333a41",
+    "contract.json": "3bb0b37dd38e0b0708c7391b3d51d4269289fa023d14b696cb0b4c1461451ed7",
+    "evaluation.json": "556c413416f890447329324d2e3a6e405c6407f2a23ffa46925ac9e9e8c943f9",
+    "lid.176.bin": "7e69ec5451bc261cc7844e49e4792a85d7f09c06789ec800fc4a44aec362764e",
+    "students.pkl": "b8b8472278bc63a04f124b66fbefff9972a30d39ae98b13b541b772874135959",
+    "validation-overlap.json.gz": "8c69271d0f001b07a38fa3f384d163085d841b57467a20c6171a38ff18ef2b27",
+    "work-plan.json": "5f5346fbc76617055e95146420ffd943b942306790e36d84f7fbd7474e208f55"
+  },
+  "curated_source_sha256": {
+    "../../src/kefir/data/src/streaming.py": "4057146bdc6658a72428dc2cb6943a53914014775589b79e16766f12cf45dfb4",
+    "_helpers.py": "5bfd231a39d7631d9abe53a50d91d305e2aecdfb0ffa0cca66757b71c021034a",
+    "build_doc_index.py": "f162002e0cf056c14264c6f0f7e61969b7b8473f8863b5e406ba2e2b09797db8",
+    "build_raw_parallel.py": "f7b9b8a3fb8ff9c48e28cb40b0d541c705edf6f7b6f2a041243a4d61cde38639",
+    "cluster_tree.py": "6abeefb5e273eb563ea3299a4c74966a6841878cf7e6fe03f2532c0c88daff78",
+    "filters_v4.py": "57bee82bb7c339fa317d3a2c058747cb6a5236769aa7c4e5d6c119e8fc3c2381",
+    "filters_v4_adapter.py": "bad13106319db040b47082e53cc312d80917d0e8cf0ed59af85fcad669c84a3e",
+    "normalization.py": "21437c634c817066206dc7f356e11ee88a4a8ea866447ad0e6ae890abf7c00cf",
+    "pack_stratified.py": "973107d8e307f5bc3f41a77efd088e30e84de25fbda56433abc1d4f236ca0c4a",
+    "strat_plan.py": "706c176907509aeff37adb7ed58d1d4fbfa83e37a8d64da12412d3a08892d073",
+    "student_gate.py": "a23dbdc670e1b2e42b607b692f96f493dc7de4d0f64da8a91af8ec912aa82ce7"
+  },
+  "original_source_note": "Historical Small-LLM corpus-builder bytes. Files in data/pretraining/ are adapted and have a separate source identity.",
+  "original_source_sha256": {
+    "build_doc_index.py": "99cd7861880f62038c4d225ecc96b923c26478755bcc69197537d6f43595cca8",
+    "build_local.py": "dc0eae7e0252d4c826ee4d9c1712d39963974f68d70483341e177e1b4f643a38",
+    "build_raw_parallel.py": "77f1b322e4a5f4f107087a629bf2288b58203df1fea37d6832e952980d94d11d",
+    "cluster_tree.py": "d75b76fbde37f5d13f375f51174e23ca2603c0bd16dc14e655bb307f3029c4f3",
+    "filters.py": "7efe115c137fa864ebc87e2619d25d520d1019b7b7a36f857492c9ea45d68d3f",
+    "filters_v4.py": "57bee82bb7c339fa317d3a2c058747cb6a5236769aa7c4e5d6c119e8fc3c2381",
+    "filters_v4_adapter.py": "a6b5c828d5fc6aa7cae27dfa9f5ae273b624c31a0876df36345b8ec0d81fd368",
+    "pack_shards.py": "9dd1de4788a5b384ef8d40de9f43e515efc409f23be8f367d8ea6d12712dc82a",
+    "pack_stratified.py": "34f53c0db4f386a378c16ca931dcba86410036c8c63ad00594007497f38abe35",
+    "refine_seed.py": "f89b952031b5ef832e33b12061461d589033ee5e103a3a65186305b48863002d",
+    "strat_plan.py": "24f047610eb45a1e97e006d16a1a2d89640a3d05387bf91d92bb0f7450585905",
+    "student_gate.py": "5f79d66043b01bd69a0a6e416c857e1b422b0a637da877e02d90aa6cbf476cc3"
+  },
+  "run_003_dataset": "moe-100b-superbpe-b64-dataset-003",
+  "source_dataset": "nvidia/Nemotron-ClimbMix",
+  "source_revision": "5eaa64b9c0c85b7f56af01d7dffdb0795816b12b",
+  "validation_overlap": {
+    "derived_from": "seed-v2/validation-*.jsonl; filters.normalized; paragraphs with at least 40 words",
+    "exact_document_ids": 11671,
+    "normalized_paragraph_sha256": 53244,
+    "original_jsonl_sha256": {
+      "validation-gateA-0000.jsonl": "9ee80f4b0d26f8a842988cc194d01f25b5d99eeb6419055f00d892d65691842a",
+      "validation-gateA-0001.jsonl": "bc05abcd1f50ce43830d971971271c801a68e434382b92aed66080b021340b29",
+      "validation-gateA-0002.jsonl": "6d36ef41874926f7aae96691f1ba4c13b3e080080ffb741968f2a1a8bfe9bbc1",
+      "validation-gateA-0003.jsonl": "47b938776b7e6a65109d4cafb7e1e8a84861cdf2d648e9d8929f4b21130824fd",
+      "validation-gateA-0004.jsonl": "ba9f99321511b501ca99e3c8728f757a53074ebb49c7de23960850b90bd363f8"
+    }
+  },
+  "redactions": {
+    "contract.json": {
+      "original_sha256": "9d3bb2dcae379d59529c14abc3502da514f2bba202aa79ebfe309086eb3ace01",
+      "changed": "source_manifest.repo and source_manifest.run name a private seed-qualification dataset; replaced by neutral text"
+    },
+    "FILTER-PROVENANCE.json": {
+      "original_sha256": "7ba6ec0d2aba73cb6296e91a866ce3ca455f868ba1e595c39b176ddea6013111",
+      "changed": "machines: host names replaced by neutral labels; student.teacher, student.source and the sha256 key of students.pkl: the teacher model name and its workspace paths replaced by neutral labels (hashes unchanged)"
+    },
+    "students.pkl": {
+      "distributed": false,
+      "reason": "obtain separately; rights of the CC BY-NC 4.0 teacher labels are unresolved for an MIT tree"
+    }
+  }
+}

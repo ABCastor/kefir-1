@@ -1,0 +1,21 @@
+{
+  "cooldown_fraction_of_targets": 0.0967741935483871,
+  "lr_final": 2.9999999999999997e-05,
+  "lr_first_step_at_peak": 38147,
+  "lr_peak": 0.0003,
+  "median_targets_per_second_cooldown": 18944.103437907026,
+  "notes": "update_hours are sums of recorded per-update durations (deduplicated rows), excluding validation, checkpointing and idle time; not billed GPU hours",
+  "targets_cooldown": 3932160000,
+  "targets_per_update": 131072,
+  "targets_total": 40632320000,
+  "update_hours_cooldown_recorded": 60.599801247348644,
+  "update_hours_run003_recorded": 28.755377171528604,
+  "updates_cooldown": 30000,
+  "updates_run003": 280000,
+  "updates_total": 310000,
+  "val_loss_280000": 2.638765749747108,
+  "val_loss_310000": 2.530762651011173,
+  "val_perplexity_change_280000_to_310000": -0.10237518507614485,
+  "validation_events": 133,
+  "validation_targets_per_event": 2097152
+}

@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "generator": "kefir_bench.authored.build_authored",
+  "split_counts": {
+    "dev": 128,
+    "test": 256,
+    "reserve": 128
+  },
+  "split_inventory": {
+    "dev": {
+      "reasoning": {
+        "verbal": 16,
+        "spatial": 8,
+        "arithmetic": 8
+      },
+      "instructions": 32,
+      "context_pairs": {
+        "reading": 6,
+        "fiction": 6,
+        "examples": 6,
+        "dialogue": 6
+      },
+      "stopping": 16
+    },
+    "test": {
+      "reasoning": {
+        "verbal": 32,
+        "spatial": 16,
+        "arithmetic": 16
+      },
+      "instructions": 64,
+      "context_pairs": {
+        "reading": 12,
+        "fiction": 12,
+        "examples": 12,
+        "dialogue": 12
+      },
+      "stopping": 32
+    },
+    "reserve": {
+      "reasoning": {
+        "verbal": 16,
+        "spatial": 8,
+        "arithmetic": 8
+      },
+      "instructions": 32,
+      "context_pairs": {
+        "reading": 6,
+        "fiction": 6,
+        "examples": 6,
+        "dialogue": 6
+      },
+      "stopping": 16
+    }
+  },
+  "isolation": "Pairs, vocabularies and specific scenarios do not cross splits. Some wording and passage structures vary between splits; task mechanisms and several templates repeat across splits. Parameter changes are not independent templates. These are held-out instances, not a clean held-out task-structure evaluation.",
+  "example_learning": "Half of example pairs transfer a two-item mapping with an explicit composition instruction. Half infer whether to preserve or reverse the order of a new pair from two demonstrations. These examples distinguish the two specified transformations but cannot logically exclude every possible alternative rule.",
+  "review": "Required-word and forbidden-word prose cases require semantic review against reference_rubric. Other text golds use conservative exact matching. References are program-generated and have not received independent human adjudication.",
+  "limitations": "Synthetic short prompts, small vocabulary, repeated templates and correlated items limit generalization. Family IDs identify individual scenarios, not statistically independent templates. Answer aliases beyond the canonical answer may require review. The panel is exposed and is not sealed."
+}

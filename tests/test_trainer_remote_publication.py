@@ -1,0 +1,306 @@
+"""Trainer CLI integration tests for fail-closed live remote publication."""
+
+from __future__ import annotations
+
+import contextlib
+import io
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+
+from kefir.trainer.cli import main
+from kefir.trainer.remote_publication import (
+    RemotePublication,
+    cleanup_remote_publication,
+    configure_remote_publication,
+)
+
+
+class _Metrics:
+    def __init__(self, step: int) -> None:
+        self.step = step
+
+    def as_dict(self) -> dict[str, object]:
+        return {"step": self.step, "loss": 1.0}
+
+
+class _Engine:
+    def __init__(self) -> None:
+        self.global_step = 0
+
+
+class _Session:
+    def __init__(self, engine: _Engine) -> None:
+        self.engine = engine
+        self.saved: list[str] = []
+
+    def step(self) -> _Metrics:
+        self.engine.global_step += 1
+        return _Metrics(self.engine.global_step)
+
+    def save_checkpoint(self, coordinator, checkpoint_id: str, **kwargs) -> Path:
+        self.saved.append(checkpoint_id)
+        return Path("/tmp/checkpoints") / checkpoint_id
+
+
+class _Coordinator:
+    def __init__(self, session: _Session, *, fail: bool = False) -> None:
+        self.session = session
+        self.fail = fail
+        self.published: list[str] = []
+
+    def publish(self, publisher, *, checkpoint_id: str, drive_manifest, **kwargs):
+        if checkpoint_id not in self.session.saved:
+            raise AssertionError("remote publication must follow a local checkpoint")
+        self.published.append(checkpoint_id)
+        if self.fail:
+            raise RuntimeError("remote upload failed")
+        return {"checkpoint_id": checkpoint_id, "best_updated": False}
+
+
+_BASE = [
+    "--dataset-dir",
+    "/tmp/data",
+    "--checkpoint-dir",
+    "/tmp/checkpoints",
+    "--steps",
+    "3",
+    "--remote-publish-every-steps",
+    "2",
+    "--remote-drive-manifest",
+    "/tmp/drive_manifest.json",
+]
+
+
+class TrainerRemotePublicationTests(unittest.TestCase):
+    def test_repository_cleanup_prunes_only_superseded_checkpoints_then_squashes(self) -> None:
+        calls: list[tuple[str, object]] = []
+
+        class Api:
+            def list_repo_files(self, **kwargs):
+                calls.append(("list", kwargs))
+                return [
+                    "run/active/checkpoints/step-00000001/last/checkpoint.json",
+                    "run/active/checkpoints/step-00000002/last/checkpoint.json",
+                    "run/active/latest.json",
+                    "run/active/best.json",
+                    "run/other/checkpoints/step-00000001/last/checkpoint.json",
+                ]
+
+            def delete_folder(self, **kwargs):
+                calls.append(("delete_folder", kwargs))
+
+            def delete_file(self, **kwargs):
+                calls.append(("delete_file", kwargs))
+
+            def super_squash_history(self, **kwargs):
+                calls.append(("squash", kwargs))
+
+        store = SimpleNamespace(
+            api=Api(),
+            repo_id="owner/checkpoints",
+            repo_type="model",
+            revision=None,
+            token="token",
+            read_json=lambda path: {"checkpoint_id": "step-00000002"},
+        )
+        remote = RemotePublication(
+            publisher=SimpleNamespace(store=store),
+            drive_manifest={"version": 1, "run_id": "active", "shards": []},
+            every_steps=1,
+            rolling_latest_only=True,
+        )
+
+        result = cleanup_remote_publication(
+            remote,
+            checkpoint_id="step-00000002",
+        )
+
+        self.assertEqual(result["status"], "pruned_and_squashed")
+        self.assertEqual(result["removed_checkpoint_ids"], ["step-00000001"])
+        deleted_folders = [payload for kind, payload in calls if kind == "delete_folder"]
+        self.assertEqual(
+            [payload["path_in_repo"] for payload in deleted_folders],
+            ["run/active/checkpoints/step-00000001"],
+        )
+        deleted_files = [payload for kind, payload in calls if kind == "delete_file"]
+        self.assertEqual([payload["path_in_repo"] for payload in deleted_files], ["run/active/best.json"])
+        squashes = [payload for kind, payload in calls if kind == "squash"]
+        self.assertEqual(len(squashes), 1)
+        self.assertEqual(squashes[0]["branch"], "main")
+
+    def _objects(self, *, fail: bool = False, rolling: bool = False):
+        engine = _Engine()
+        session = _Session(engine)
+        coordinator = _Coordinator(session, fail=fail)
+        trainer_config = SimpleNamespace(
+            evaluation_every_steps=0,
+            checkpoint_every_steps=0,
+        )
+        remote = SimpleNamespace(
+            publisher=object(),
+            drive_manifest={"version": 1, "run_id": "run", "shards": []},
+            every_steps=2,
+            rolling_latest_only=rolling,
+        )
+        setup_result = (object(), trainer_config, engine, session, coordinator)
+        return session, coordinator, remote, setup_result
+
+    def test_periodic_publication_and_final_publication_share_atomic_boundaries(self) -> None:
+        session, coordinator, remote, setup_result = self._objects()
+        with (
+            patch("kefir.trainer.cli.setup", return_value=setup_result),
+            patch("kefir.trainer.cli.configure_remote_publication", return_value=remote),
+            patch("kefir.trainer.cli.torch.cuda.is_available", return_value=False),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            self.assertEqual(main(list(_BASE)), 0)
+
+        self.assertEqual(session.saved, ["step-00000002", "step-00000003"])
+        self.assertEqual(coordinator.published, ["step-00000002", "step-00000003"])
+
+    def test_remote_failure_is_propagated_after_local_checkpoint(self) -> None:
+        session, coordinator, remote, setup_result = self._objects(fail=True)
+        with (
+            patch("kefir.trainer.cli.setup", return_value=setup_result),
+            patch("kefir.trainer.cli.configure_remote_publication", return_value=remote),
+            patch("kefir.trainer.cli.torch.cuda.is_available", return_value=False),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "remote upload failed"):
+                main(list(_BASE))
+
+        self.assertEqual(session.saved, ["step-00000002"])
+        self.assertEqual(coordinator.published, ["step-00000002"])
+
+    def test_rolling_mode_cleans_after_each_verified_publication(self) -> None:
+        session, coordinator, remote, setup_result = self._objects(rolling=True)
+        cleanup_calls: list[str] = []
+
+        def cleanup(_remote, *, checkpoint_id: str):
+            cleanup_calls.append(checkpoint_id)
+            return {"status": "pruned", "checkpoint_id": checkpoint_id}
+
+        with (
+            patch("kefir.trainer.cli.setup", return_value=setup_result),
+            patch("kefir.trainer.cli.configure_remote_publication", return_value=remote),
+            patch("kefir.trainer.cli.cleanup_remote_publication", side_effect=cleanup),
+            patch("kefir.trainer.cli.torch.cuda.is_available", return_value=False),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            self.assertEqual(main(list(_BASE) + ["--remote-rolling-latest-only"]), 0)
+
+        self.assertEqual(coordinator.published, ["step-00000002", "step-00000003"])
+        self.assertEqual(cleanup_calls, ["step-00000002", "step-00000003"])
+
+    def test_configuration_uses_verified_manifest_and_explicit_repo(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest_path = Path(tmp) / "drive_manifest.json"
+            manifest = {
+                "version": 1,
+                "run_id": "qualification-run",
+                "shards": [{"filename": "train/a.bin", "remote_durable": True}],
+            }
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            args = SimpleNamespace(
+                remote_publish_every_steps=50,
+                remote_drive_manifest=manifest_path,
+                remote_checkpoint_repo="owner/private",
+                remote_checkpoint_bucket=None,
+                remote_token_env="SMALL_LLM_TEST_UNUSED_TOKEN",
+                remote_checkpoint_revision=None,
+                remote_create_repo=False,
+                remote_create_bucket=False,
+                remote_rolling_latest_only=True,
+            )
+            store = object()
+            publisher = object()
+            with (
+                patch("kefir.trainer.remote_publication.HuggingFaceCheckpointStore", return_value=store) as store_type,
+                patch("kefir.trainer.remote_publication.TwoPhaseCheckpointPublisher", return_value=publisher) as publisher_type,
+            ):
+                configured = configure_remote_publication(args)
+
+            self.assertIsNotNone(configured)
+            assert configured is not None
+            self.assertEqual(configured.every_steps, 50)
+            self.assertEqual(configured.drive_manifest, manifest)
+            self.assertTrue(configured.rolling_latest_only)
+            store_type.assert_called_once_with(
+                "owner/private",
+                token=None,
+                private=True,
+                revision=None,
+                create_repo=False,
+            )
+            publisher_type.assert_called_once_with(store, run_id="qualification-run")
+
+    def test_configuration_can_use_storage_bucket(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest_path = Path(tmp) / "transport.json"
+            manifest = {"version": 1, "run_id": "remote-run", "shards": []}
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            args = SimpleNamespace(
+                remote_publish_every_steps=500,
+                remote_drive_manifest=manifest_path,
+                remote_checkpoint_repo=None,
+                remote_checkpoint_bucket="owner/run-checkpoints",
+                remote_token_env="HF_TOKEN",
+                remote_checkpoint_revision=None,
+                remote_create_repo=False,
+                remote_create_bucket=True,
+                remote_rolling_latest_only=True,
+            )
+            store = object()
+            publisher = object()
+            with (
+                patch.dict("os.environ", {"HF_TOKEN": "secret"}, clear=False),
+                patch("kefir.trainer.remote_publication.HuggingFaceBucketCheckpointStore", return_value=store) as store_type,
+                patch("kefir.trainer.remote_publication.TwoPhaseCheckpointPublisher", return_value=publisher) as publisher_type,
+            ):
+                configured = configure_remote_publication(args)
+
+            self.assertIsNotNone(configured)
+            assert configured is not None
+            self.assertTrue(configured.rolling_latest_only)
+            store_type.assert_called_once_with(
+                "owner/run-checkpoints",
+                token="secret",
+                private=True,
+                create_bucket=True,
+            )
+            publisher_type.assert_called_once_with(store, run_id="remote-run")
+
+    def test_configuration_rejects_non_durable_shard(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest_path = Path(tmp) / "drive_manifest.json"
+            manifest_path.write_text(
+                json.dumps(
+                    {
+                        "version": 1,
+                        "run_id": "qualification-run",
+                        "shards": [{"filename": "train/a.bin", "remote_durable": False}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            args = SimpleNamespace(
+                remote_publish_every_steps=50,
+                remote_drive_manifest=manifest_path,
+                remote_checkpoint_repo="owner/private",
+                remote_checkpoint_bucket=None,
+                remote_token_env="SMALL_LLM_TEST_UNUSED_TOKEN",
+                remote_checkpoint_revision=None,
+                remote_create_repo=False,
+                remote_create_bucket=False,
+                remote_rolling_latest_only=False,
+            )
+            with self.assertRaisesRegex(SystemExit, "not verified remote_durable"):
+                configure_remote_publication(args)
+
+
+if __name__ == "__main__":
+    unittest.main()
