@@ -172,4 +172,4 @@ Questions and bug reports: [GitHub issues](https://github.com/ABCastor/kefir-1/i
 <p><a href="https://abcastor.com"><picture>
   <source media="(prefers-color-scheme: dark)" srcset="results/figures/castor-footer-dark.png" width="350">
   <img src="results/figures/castor-footer.png" width="350" alt="Chip, the Castor beaver, by Castor, we give a dam">
-</picture></a></p>
+</picture></a></p> 
